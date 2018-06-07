@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package explorer.generated;
+
+
+message Message1 {
+    string value = 1;
+}
+
+message Message2 {
+    string value = 2;
+}
+
+message Message3 {
+    repeated string messages = 1;
+}
+
+
+service Service {
+    rpc rpc (Message1) returns (Message3);
+    rpc clientStreaming (stream Message1) returns (Message3);
+    rpc serverStreaming (Message1) returns (stream Message3);
+    rpc bidirectional (stream Message1) returns (stream Message3);
+}
