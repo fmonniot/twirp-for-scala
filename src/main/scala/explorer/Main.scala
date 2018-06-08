@@ -2,7 +2,7 @@ package explorer
 
 import cats.implicits._
 import cats.effect.{Effect, IO, Sync, Timer}
-import explorer.generated.{Message1, Message3}
+import explorer.generated_manual.{Message1, Message3}
 import fs2.StreamApp.ExitCode
 import fs2.{Stream, StreamApp}
 import org.http4s.client.blaze.Http1Client
@@ -25,7 +25,7 @@ object Main extends StreamApp[IO] {
     createStream[IO]
 
   // That's my implementation \o/
-  def impl[F[_]](implicit F: Sync[F]) = new generated.Service[F] {
+  def impl[F[_]](implicit F: Sync[F]) = new generated_manual.Service[F] {
 
     override def rpc(message1: Message1)(implicit ctx: Context) =
       F.pure(Message3(a = List(message1.value)))

@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package explorer.generated;
+
+
+message MessageIn {
+    string value = 1;
+}
+
+message MessageOut {
+    repeated string messages = 1;
+}
+
+
+service Service {
+    rpc rpc (MessageIn) returns (MessageOut);
+    rpc clientStreaming (stream MessageIn) returns (MessageOut);
+    rpc serverStreaming (MessageIn) returns (stream MessageOut);
+    rpc bidirectional (stream MessageIn) returns (stream MessageOut);
+}

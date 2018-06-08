@@ -1,7 +1,7 @@
 package explorer
 
 import cats.effect.{IO, Sync}
-import explorer.generated.{Message1, Message3}
+import explorer.generated_manual.{Message1, Message3}
 import fs2.Stream
 import org.http4s.Uri.uri
 import org.http4s.client.blaze.Http1Client
@@ -53,7 +53,7 @@ class E2ESpec extends FlatSpec with Matchers {
 
   def stdout(s: String) = Stream.eval(IO(println(s)))
 
-  def impl[F[_]](implicit F: Sync[F]) = new generated.Service[F] {
+  def impl[F[_]](implicit F: Sync[F]) = new generated_manual.Service[F] {
 
     import cats.implicits._
     import core.Context

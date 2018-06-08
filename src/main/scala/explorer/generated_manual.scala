@@ -9,7 +9,7 @@ import org.http4s.circe._
 import org.http4s.client.Client
 import org.http4s.{EntityDecoder, EntityEncoder, HttpService, Request, Uri}
 
-object generated {
+object generated_manual {
 
   case class Message1(value: String)
 

@@ -67,8 +67,8 @@ object CodeGenerator extends ProtocCodeGenerator {
     }
   }
 
-  // Suggest to the user to install our lib
+  // this is not a suggestion, but an artifact that MUST be available in the class path
   override def suggestedDependencies: Seq[Artifact] = Seq(
-    Artifact("eu.monniot.rpc", "rpc-runtime", scalapb.compiler.Version.scalapbVersion, crossVersion = true)
+//    Artifact("eu.monniot.rpc", "rpc-runtime", scalapb.compiler.Version.scalapbVersion, crossVersion = true)
   )
 }
