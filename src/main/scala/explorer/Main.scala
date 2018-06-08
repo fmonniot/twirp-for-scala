@@ -1,6 +1,5 @@
 package explorer
 
-import cats.Applicative
 import cats.implicits._
 import cats.effect.{Effect, IO, Sync, Timer}
 import explorer.generated.{Message1, Message3}
@@ -11,9 +10,15 @@ import org.http4s.server.blaze.BlazeBuilder
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
-
 import core._
+import org.http4s.Uri.uri
 
+
+// Streaming doesn't support Protobuf in its current format
+// What's the story regarding Errors ? For now we are living in a perfect world but we know how it goes
+// For rpc it's relatively easy, as we can return an error instead of the response
+// for client streaming the same
+// but for server streaming ? What happens when the server start streaming and then encounters an error ?
 object Main extends StreamApp[IO] {
 
   override def stream(args: List[String], requestShutdown: IO[Unit]): Stream[IO, ExitCode] =
@@ -50,7 +55,7 @@ object Main extends StreamApp[IO] {
 
     val tests = for {
       httpClient <- Http1Client.stream[F]()
-      client = generated.httpClient(httpClient)
+      client = generated.httpClient(uri("http://localhost:8080"), httpClient)
 
 
       _ <- stdout("Wait a bit before making the requests")

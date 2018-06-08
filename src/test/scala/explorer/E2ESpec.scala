@@ -3,6 +3,7 @@ package explorer
 import cats.effect.{IO, Sync}
 import explorer.generated.{Message1, Message3}
 import fs2.Stream
+import org.http4s.Uri.uri
 import org.http4s.client.blaze.Http1Client
 import org.http4s.server.blaze.BlazeBuilder
 import org.scalatest.{FlatSpec, Matchers}
@@ -16,7 +17,7 @@ class E2ESpec extends FlatSpec with Matchers {
 
     val tests = for {
       httpClient <- Http1Client.stream[IO]()
-      client = generated.httpClient(httpClient)
+      client = generated.httpClient(uri("http://localhost:8080"), httpClient)
 
       _ <- stdout("Making the RPC request")
       answer <- Stream.eval(client.rpc(Message1("1.1")))

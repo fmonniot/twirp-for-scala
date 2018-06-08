@@ -34,7 +34,6 @@ lazy val root = (project in file("."))
       "io.circe"        %% "circe-generic"        % CirceVersion,
       "io.circe"        %% "circe-parser"         % CirceVersion,
 
-
       "ch.qos.logback"  %  "logback-classic"      % LogbackVersion,
 
       "org.scalatest"   %% "scalatest"            % ScalaTestVersion  % Test,
@@ -42,3 +41,12 @@ lazy val root = (project in file("."))
     )
   )
 
+lazy val `sbt-http4s-gen` = project
+  .settings(
+    sbtPlugin := true,
+    crossSbtVersions := List(sbtVersion.value, "0.13.17"),
+    addSbtPlugin("com.thesamet" % "sbt-protoc" % "0.99.18"),
+    libraryDependencies ++= List(
+      "com.thesamet.scalapb" %% "compilerplugin" % "0.7.4"
+    )
+  )

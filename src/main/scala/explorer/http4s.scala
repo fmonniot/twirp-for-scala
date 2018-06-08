@@ -1,19 +1,26 @@
 package explorer
 
-import cats.{Applicative, FlatMap, Monad}
+import cats.{Applicative, Monad}
 import cats.implicits._
 import explorer.core.{Context, NoContext}
-import fs2.Stream
-import io.circe.Decoder
-import org.http4s.dsl.impl.Statuses
+import fs2.{Chunk, Segment, Stream}
+import io.circe.{Decoder, Encoder, Printer}
+import io.circe.syntax._
+import org.http4s.client.Client
 import org.http4s.{EntityDecoder, EntityEncoder, Request, Response}
 
 // Collection of function which are common to all http4s code generated server.
 // Those are extracted to ease maintenance and accelerate development.
+// TODO Make http4s a package and have one server object and one client object
+// instead of mixing everything as I'm doing right now
 object http4s {
   // Json stream parsing
   import io.circe.jawn.CirceSupportParser.facade
   import jawnfs2._
+
+  //
+  // Server oriented methods
+  //
 
   // Needs to be figured later
   def contextFromRequest[F[_] : Applicative](req: Request[F]): F[Context] = Applicative[F].pure(NoContext)
@@ -77,4 +84,32 @@ object http4s {
       res <- Ok(f(inStream, ctx))
     } yield res
   }
+
+  //
+  // Client oriented methods
+  //
+
+  def streamBodyToRequest[F[_], A: Encoder](s: Stream[F, A]): Stream[F, Byte] =
+    s.flatMap { a =>
+      val bb = Printer.noSpaces.prettyByteBuffer(a.asJson)
+      val segment = Segment.chunk(Chunk.byteBuffer(bb))
+
+      Stream.segment(segment)
+    }
+
+  implicit class ClientOps[F[_]](val client: Client[F]) extends AnyVal {
+    def streamResponse[B: Decoder](req: Request[F]): Stream[F, B] = {
+      import io.circe.jawn.CirceSupportParser.facade
+      import jawnfs2._
+
+      client.streaming(req)(res => res.body.chunks.parseJsonStream)
+        .map(_.as[B])
+        .flatMap {
+          // Swallow up errors for now, we should at least warn something
+          case Left(_) => Stream.empty
+          case Right(i) => Stream.emit(i)
+        }
+    }
+  }
+
 }
