@@ -92,4 +92,15 @@ object MessageOut extends scalapb.GeneratedMessageCompanion[explorer.generated.s
     def messages: _root_.scalapb.lenses.Lens[UpperPB, _root_.scala.collection.Seq[_root_.scala.Predef.String]] = field(_.messages)((c_, f_) => c_.copy(messages = f_))
   }
   final val MESSAGES_FIELD_NUMBER = 1
+
+  implicit val encoder: _root_.io.circe.Encoder[MessageOut] = {
+    import _root_.io.circe.generic.semiauto._
+
+    deriveEncoder[MessageOut]
+  }
+  implicit val decoder: _root_.io.circe.Decoder[MessageOut] = {
+    import _root_.io.circe.generic.semiauto._
+
+    deriveDecoder[MessageOut]
+  }
 }

@@ -95,4 +95,15 @@ object MessageIn extends scalapb.GeneratedMessageCompanion[explorer.generated.se
     def value: _root_.scalapb.lenses.Lens[UpperPB, _root_.scala.Predef.String] = field(_.value)((c_, f_) => c_.copy(value = f_))
   }
   final val VALUE_FIELD_NUMBER = 1
+
+  implicit val encoder: _root_.io.circe.Encoder[MessageIn] = {
+    import _root_.io.circe.generic.semiauto._
+
+    deriveEncoder[MessageIn]
+  }
+  implicit val decoder: _root_.io.circe.Decoder[MessageIn] = {
+    import _root_.io.circe.generic.semiauto._
+
+    deriveDecoder[MessageIn]
+  }
 }

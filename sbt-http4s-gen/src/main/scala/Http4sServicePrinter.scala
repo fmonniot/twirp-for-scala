@@ -88,7 +88,7 @@ class Http4sServicePrinter(service: ServiceDescriptor, override val params: Gene
       .indent
       .add(method.streamType match {
         case StreamType.Unary =>
-          s"rpc(req, service.${method.name}(_: ${method.scalaIn})(_: Contex))"
+          s"rpc(req, service.${method.name}(_: ${method.scalaIn})(_: Context))"
         case StreamType.ClientStreaming =>
           s"clientStreaming(req, service.clientStreaming(_: _root_.fs2.Stream[F, ${method.scalaIn}])(_: Context))"
         case StreamType.ServerStreaming =>

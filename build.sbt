@@ -35,6 +35,7 @@ lazy val root = (project in file("."))
       "io.circe"        %% "circe-parser"         % CirceVersion,
 
       "ch.qos.logback"  %  "logback-classic"      % LogbackVersion,
+      "com.thesamet.scalapb" % "scalapb-runtime_2.12" % "0.7.4",
 
       "org.scalatest"   %% "scalatest"            % ScalaTestVersion  % Test,
       "org.scalacheck"  %% "scalacheck"           % ScalaCheckVersion % Test

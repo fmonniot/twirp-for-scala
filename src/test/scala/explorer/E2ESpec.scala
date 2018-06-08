@@ -17,7 +17,7 @@ class E2ESpec extends FlatSpec with Matchers {
 
     val tests = for {
       httpClient <- Http1Client.stream[IO]()
-      client = generated.httpClient(uri("http://localhost:8080"), httpClient)
+      client = generated_manual.httpClient(uri("http://localhost:8080"), httpClient)
 
       _ <- stdout("Making the RPC request")
       answer <- Stream.eval(client.rpc(Message1("1.1")))
@@ -47,7 +47,7 @@ class E2ESpec extends FlatSpec with Matchers {
   }
 
   val server = BlazeBuilder[IO]
-    .mountService(generated.httpServer(impl))
+    .mountService(generated_manual.httpServer(impl))
     .bindHttp() // Default address `localhost:8080`
     .serve
 

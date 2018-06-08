@@ -55,7 +55,7 @@ object Main extends StreamApp[IO] {
 
     val tests = for {
       httpClient <- Http1Client.stream[F]()
-      client = generated.httpClient(uri("http://localhost:8080"), httpClient)
+      client = generated_manual.httpClient(uri("http://localhost:8080"), httpClient)
 
 
       _ <- stdout("Wait a bit before making the requests")
@@ -84,7 +84,7 @@ object Main extends StreamApp[IO] {
     } yield ExitCode.Success
 
     val server = BlazeBuilder[F]
-      .mountService(generated.httpServer(impl))
+      .mountService(generated_manual.httpServer(impl))
       .bindHttp() // Default address `localhost:8080`
       .serve
 
