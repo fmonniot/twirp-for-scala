@@ -18,7 +18,14 @@ class Http4sServicePrinter(service: ServiceDescriptor, override val params: Gene
 
   private[this] val imports = Seq(
     "import _root_.cats.implicits._",
+    "import _root_.cats.effect.Sync",
     "import core._",
+    "import org.http4s.client.Client",
+    "import org.http4s.{EntityDecoder, EntityEncoder, HttpService, Request, Uri}",
+    "import org.http4s.circe._",
+    "import fs2.Stream",
+    "import _root_.explorer.core._",
+    "import _root_.explorer.http4s._"
   )
 
   private[this] def serviceTrait: PrinterEndo =
@@ -57,7 +64,7 @@ class Http4sServicePrinter(service: ServiceDescriptor, override val params: Gene
   //
 
   private[this] def serviceServer: PrinterEndo = {
-    _.add(s"def httpServer[F[_]: _root_.cats.effect.Sync](service: ${service.name}[F]): _root_.org.http4s.HttpService = {")
+    _.add(s"def httpServer[F[_]: Sync](service: ${service.name}[F]): HttpService[F] = {")
       .indent
       .add(
         "// Http4s DSL in F",
@@ -105,16 +112,12 @@ class Http4sServicePrinter(service: ServiceDescriptor, override val params: Gene
 
   private[this] def serviceClient: PrinterEndo =
     _.add(
-      "def httpClient[F[_]: _root_.cats.effect.Sync]" +
-        "(base: _root_.org.http4s.Uri, client: _root_.org.http4s.client.Client[F]): " +
-        s"${service.name}[F] = new ${service.name}[F] {"
+      s"def httpClient[F[_]: Sync](base: Uri, client: Client[F]): ${service.name}[F] = new ${service.name}[F] {"
     )
       .indent
       .add(
         "import _root_.http4s._",
-        s"""private val baseService = base / "${service.getFile.scalaPackageName}" / "${service.name}" """,
-        "",
-        "import _root_.http4s._",
+        s"""val baseService = base / "${service.getFile.scalaPackageName}" / "${service.name}" """,
         "",
         "// Adding entity decoder and encoder, for the non-streaming part"
       )
