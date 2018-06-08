@@ -8,8 +8,7 @@ import io.circe.syntax._
 import io.circe.{Decoder, Encoder, Printer}
 import org.http4s.circe._
 import org.http4s.client.Client
-import org.http4s.{HttpService, Request}
-
+import org.http4s.{EntityDecoder, EntityEncoder, HttpService, Request, Response}
 import core._
 
 object generated {
@@ -85,62 +84,27 @@ object generated {
   }
 
   def httpServer[F[_] : Sync](implementation: Service[F]): HttpService[F] = {
+    // Http4s DSL in effect F
     val dsl = org.http4s.dsl.Http4sDsl[F]
     import dsl._
+    import http4s._
 
-    implicit val et1 = jsonOf[F, Message1]
-    implicit val et2 = jsonOf[F, List[Message1]]
-    implicit val et5 = jsonEncoderOf[F, Message3]
+    // Because they needs to be explicit somehow
+    implicit val et1: EntityDecoder[F, Message1] = jsonOf[F, Message1]
+    implicit val et5: EntityEncoder[F, Message3] = jsonEncoderOf[F, Message3]
 
-    // Needs to be figured later
-    def contextFromRequest(req: Request[F]): F[Context] = Sync[F].pure(NoContext)
-
-    // Json stream parsing
-    import io.circe.jawn.CirceSupportParser.facade
-    import jawnfs2._
-
-    def streamBodyFromRequest[A: Decoder](request: Request[F]): Stream[F, A] =
-      request.body.chunks.parseJsonStream
-        .map(_.as[A])
-        .flatMap {
-          case Left(_) => Stream.empty
-          case Right(i) => Stream.emit(i)
-        }
-
-    // Below
     HttpService {
       case req@GET -> Root / "package" / "service" / "rpc" =>
-        for {
-          ctx <- contextFromRequest(req)
-          param <- req.as[Message1]
-          res <- implementation.rpc(param)(ctx)
-          res <- Ok(res)
-        } yield res
+        rpc(req, implementation.rpc(_: Message1)(_: Context))
 
       case req@GET -> Root / "package" / "service" / "clientStreaming" =>
-
-        for {
-          ctx <- contextFromRequest(req)
-          inStream = streamBodyFromRequest[Message1](req)
-          res <- implementation.clientStreaming(inStream)(ctx)
-          res <- Ok(res)
-        } yield res
+        clientStreaming(req, implementation.clientStreaming(_: Stream[F, Message1])(_: Context))
 
       case req@GET -> Root / "package" / "service" / "serverStreaming" =>
-        for {
-          ctx <- contextFromRequest(req)
-          param <- req.as[Message1]
-          res <- Sync[F].delay(implementation.serverStreaming(param)(ctx))
-          res <- Ok(res)
-        } yield res
+        serverStreaming(req, implementation.serverStreaming(_: Message1)(_: Context))
 
       case req@GET -> Root / "package" / "service" / "bidirectional" =>
-        for {
-          ctx <- contextFromRequest(req)
-          inStream = streamBodyFromRequest[Message1](req)
-          res <- Sync[F].delay(implementation.bidirectional(inStream)(ctx))
-          res <- Ok(res)
-        } yield res
+        bidirectional(req, implementation.bidirectional(_: Stream[F, Message1])(_: Context))
     }
   }
 

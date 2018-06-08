@@ -14,11 +14,6 @@ class E2ESpec extends FlatSpec with Matchers {
   it should "make a request and return the result" in {
     implicit val ctx: core.Context = core.NoContext
 
-    val server = BlazeBuilder[IO]
-      .mountService(generated.httpServer(impl))
-      .bindHttp() // Default address `localhost:8080`
-      .serve
-
     val tests = for {
       httpClient <- Http1Client.stream[IO]()
       client = generated.httpClient(httpClient)
@@ -42,6 +37,18 @@ class E2ESpec extends FlatSpec with Matchers {
 
     tests.mergeHaltL(server).compile.drain.unsafeRunSync()
   }
+
+  // TODO Find a standardized way of expression errors
+  // This is how Google is doing it:
+  // https://github.com/googleapis/googleapis/blob/master/google/rpc/status.proto
+  it should "return an error when a service fail" in {
+    pending
+  }
+
+  val server = BlazeBuilder[IO]
+    .mountService(generated.httpServer(impl))
+    .bindHttp() // Default address `localhost:8080`
+    .serve
 
   def stdout(s: String) = Stream.eval(IO(println(s)))
 
