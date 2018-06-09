@@ -52,23 +52,37 @@ object CodeGenerator extends ProtocCodeGenerator {
   def generateServiceFiles(file: FileDescriptor,
                            params: GeneratorParams): Seq[PluginProtos.CodeGeneratorResponse.File] = {
     println("Services: " + file.getServices.asScala)
-    file.getServices.asScala.map { service =>
-      val p = new Http4sServicePrinter(service, params)
+    file.getServices.asScala.flatMap { service =>
+      val serviceFile = {
+        val servicePrinter = new Http4sServicePrinter(service, params)
 
-      import p.{FileDescriptorPimp, ServiceDescriptorPimp}
-      val code = p.printService(FunctionalPrinter()).result()
+        import servicePrinter.{FileDescriptorPimp, ServiceDescriptorPimp}
+        val code = servicePrinter.printService(FunctionalPrinter()).result()
 
-      val b    = CodeGeneratorResponse.File.newBuilder()
-      b.setName(file.scalaDirectory + "/" + service.objectName + "Fs2.scala")
-      b.setContent(code)
-      println(b.getName)
+        CodeGeneratorResponse.File.newBuilder()
+          .setName(file.scalaDirectory + "/" + service.name + "Rpc4s.scala")
+          .setContent(code)
+          .build
+      }
 
-      b.build
+      val jsonFile = {
+        val printer = new CirceSerdePrinter(service, params)
+        import printer.{FileDescriptorPimp, ServiceDescriptorPimp}
+
+        val code = printer.print(FunctionalPrinter()).result()
+
+        CodeGeneratorResponse.File.newBuilder()
+          .setName(file.scalaDirectory + "/" + service.name + "JsonInstances.scala")
+          .setContent(code)
+          .build
+      }
+
+      Seq(serviceFile, jsonFile)
     }
   }
 
   // this is not a suggestion, but an artifact that MUST be available in the class path
   override def suggestedDependencies: Seq[Artifact] = Seq(
-//    Artifact("eu.monniot.rpc", "rpc-runtime", scalapb.compiler.Version.scalapbVersion, crossVersion = true)
+    //    Artifact("eu.monniot.rpc", "rpc-runtime", scalapb.compiler.Version.scalapbVersion, crossVersion = true)
   )
 }

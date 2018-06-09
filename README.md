@@ -1,54 +1,30 @@
-# **TODO Change this README to something useful :)**
+# rpc4s
 
+A experimentation to see if we can have some like twirp in a scala world.
 
-Unofficial [Giter8][g8] template for the [Typelevel][typelevel] Stack ([Http4s][http4s] / [Doobie][doobie] / [Circe][circe] / [Cats Effect][cats-effect] / [Fs2][fs2]) based on [Cats][cats] v1.x.x
-==========================================================================================================================================================================================
+## Implementation note
 
-Typelevel Stack QuickStart
---------------------------
+_This work as a todo and memo list, as well as informing visitor of what's not done in this project :)_
 
-1. Install [sbt][sbt]
-2. `sbt new gvolpe/typelevel-stack.g8`
-3. `cd squiexplorer`
-4. Install [PostgreSQL][postgresql] and configure access for user `postgres` and password `postgres` (or change it in `Module`)
-5. Create database `users` and table `api_user` (see `src/main/resources/users.sql` or use `Flyway` as in the tests).
-6. `sbt test` (optional)
-7. `sbt run`
-8. `curl http://localhost:8080/users/USERNAME`
+- We don't support protobuf at the moment
 
-About Template
---------------
+- Streaming doesn't support Protobuf in its current format
 
-It contains the minimal code to get you started:
+    To stream protobuf we needs to add limiter before every message. The idea is simple:
+    
+    Add a fixed size int (or less, depending on the supported message max size) with a known
+    length, and add the size of the protobuf message in that. On the other side, read the length
+    and get the correct amount of byte to decode the message. Rinse and repeat until end of stream.
 
-- `UserRepository`: Defines a method to find a user without commiting to a Monad (kind of tagless-final).
-  - `PostgresUserRepository`: Implementation of the UserRepository interface using Doobie and PostgreSQL abstracting over the Effect `F[_]`.
-- `UserService`: Business logic on top of the UserRepository again abstracting over the Effect `F[_]`.
-- `UserHttpEndpoint`: Defines the http endpoints of the REST API making use of the UserService.
-- `HttpErrorHandler`: Mapping business errors to http responses in a single place.
-- `http` package: Includes custom Circe Json Encoders for value classes.
-- `validation` object: Includes fields validation using `cats.data.ValidatedNel`.
-- `Module`: Dependencies module.
-- `Server`: The main application that wires all the components and starts the web server.
+- What's the story regarding Errors ? 
 
-Template License
-----------------
-Written in <2017> by [@gvolpe][gvolpe]
+    For now we are living in a perfect world but we know how it goes
 
-To the extent possible under law, the author(s) have dedicated all copyright and related
-and neighboring rights to this template to the public domain worldwide.
-This template is distributed without any warranty. See <http://creativecommons.org/publicdomain/zero/1.0/>.
+    For rpc it's relatively easy, as we can return an error instead of the response
+    for client streaming the same but for server streaming ?
+    What happens when the server start streaming and then encounters an error ?
+  
+    This is how Google is doing it:
+    https://github.com/googleapis/googleapis/blob/master/google/rpc/status.proto
 
-[g8]: http://www.foundweekends.org/giter8/
-[typelevel]: https://typelevel.org
-[http4s]: http://http4s.org/
-[doobie]: http://tpolecat.github.io/doobie/
-[circe]: https://circe.github.io/circe/
-[cats-effect]: https://github.com/typelevel/cats-effect
-[cats]: https://typelevel.org/cats/
-[fs2]: https://github.com/functional-streams-for-scala/fs2
-
-[sbt]: http://www.scala-sbt.org/1.x/docs/Setup.html
-[postgresql]: https://www.postgresql.org/download/
-[gvolpe]: https://github.com/gvolpe
-
+- `example` should be part of a scripted test suite for the plugin

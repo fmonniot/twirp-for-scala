@@ -1,1 +1,1 @@
-addSbtPlugin("sbt-http4s-gen" % "sbt-http4s-gen" % "0.1.0-SNAPSHOT")
+addSbtPlugin("eu.monniot.rpc4s" % "sbt-codegen-plugin" % "0.1.0-SNAPSHOT")
