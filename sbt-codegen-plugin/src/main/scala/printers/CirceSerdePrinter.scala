@@ -1,11 +1,13 @@
+package printers
+
 import com.google.protobuf.Descriptors.{MethodDescriptor, ServiceDescriptor}
 import scalapb.compiler.FunctionalPrinter.PrinterEndo
-import scalapb.compiler.{DescriptorPimps, FunctionalPrinter, GeneratorParams}
+import scalapb.compiler.{FunctionalPrinter, GeneratorParams}
 
 // Largely inspired by the fs2-grpc project: Need to mention it somewhere.
 // Also we needs to generate circe decoder / encoder, as it's required to have this generated code compile
 // Need to setup a
-class CirceSerdePrinter(service: ServiceDescriptor, override val params: GeneratorParams) extends DescriptorPimps {
+class CirceSerdePrinter(service: ServiceDescriptor, override val params: GeneratorParams) extends Printer {
 
   def print(printer: FunctionalPrinter): FunctionalPrinter =
     printer

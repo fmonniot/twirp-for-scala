@@ -2,6 +2,7 @@ import com.google.protobuf.ExtensionRegistry
 import com.google.protobuf.Descriptors._
 import com.google.protobuf.compiler.PluginProtos
 import com.google.protobuf.compiler.PluginProtos.{CodeGeneratorRequest, CodeGeneratorResponse}
+import printers.{CirceSerdePrinter, Http4sServicePrinter, Printer}
 import protocbridge.{Artifact, ProtocCodeGenerator}
 
 import scala.collection.JavaConverters._
@@ -11,6 +12,11 @@ import scalapb.options.compiler.Scalapb
 // Extension for protobuf to hook in our code gen
 object CodeGenerator extends ProtocCodeGenerator {
 
+  // this is not a suggestion, but an artifact that MUST be available in the class path
+  // And here it's complicated, because we don't have the same requirement based on the parameters passed
+  override def suggestedDependencies: Seq[Artifact] = Seq(
+    //    Artifact("eu.monniot.rpc", "rpc-runtime", scalapb.compiler.Version.scalapbVersion, crossVersion = true)
+  )
 
   override def run(req: Array[Byte]): Array[Byte] = {
     println("Running Code Generation")
@@ -54,35 +60,32 @@ object CodeGenerator extends ProtocCodeGenerator {
     println("Services: " + file.getServices.asScala)
     file.getServices.asScala.flatMap { service =>
       val serviceFile = {
-        val servicePrinter = new Http4sServicePrinter(service, params)
+        val printer = new Http4sServicePrinter(service, params)
+        import printer.{FileDescriptorPimp, ServiceDescriptorPimp}
+        val fileName = file.scalaDirectory + "/" + service.name + "Rpc4s.scala"
 
-        import servicePrinter.{FileDescriptorPimp, ServiceDescriptorPimp}
-        val code = servicePrinter.printService(FunctionalPrinter()).result()
-
-        CodeGeneratorResponse.File.newBuilder()
-          .setName(file.scalaDirectory + "/" + service.name + "Rpc4s.scala")
-          .setContent(code)
-          .build
+        genFile(printer, fileName)
       }
 
       val jsonFile = {
         val printer = new CirceSerdePrinter(service, params)
         import printer.{FileDescriptorPimp, ServiceDescriptorPimp}
+        val fileName = file.scalaDirectory + "/" + service.name + "JsonInstances.scala"
 
-        val code = printer.print(FunctionalPrinter()).result()
-
-        CodeGeneratorResponse.File.newBuilder()
-          .setName(file.scalaDirectory + "/" + service.name + "JsonInstances.scala")
-          .setContent(code)
-          .build
+        genFile(printer, fileName)
       }
 
       Seq(serviceFile, jsonFile)
     }
   }
 
-  // this is not a suggestion, but an artifact that MUST be available in the class path
-  override def suggestedDependencies: Seq[Artifact] = Seq(
-    //    Artifact("eu.monniot.rpc", "rpc-runtime", scalapb.compiler.Version.scalapbVersion, crossVersion = true)
-  )
+  private def genFile(printer: Printer, fileName: String) = {
+    val code = printer.print(FunctionalPrinter()).result()
+
+    CodeGeneratorResponse.File.newBuilder()
+      .setName(fileName)
+      .setContent(code)
+      .build
+  }
+
 }

@@ -1,13 +1,15 @@
+package printers
+
 import com.google.protobuf.Descriptors.{MethodDescriptor, ServiceDescriptor}
 import scalapb.compiler.FunctionalPrinter.PrinterEndo
-import scalapb.compiler.{DescriptorPimps, FunctionalPrinter, GeneratorParams, StreamType}
+import scalapb.compiler.{FunctionalPrinter, GeneratorParams, StreamType}
 
 // Largely inspired by the fs2-grpc project: Need to mention it somewhere.
 // Also we needs to generate circe decoder / encoder, as it's required to have this generated code compile
 // Need to setup a
-class Http4sServicePrinter(service: ServiceDescriptor, override val params: GeneratorParams) extends DescriptorPimps {
+class Http4sServicePrinter(service: ServiceDescriptor, override val params: GeneratorParams) extends Printer {
 
-  def printService(printer: FunctionalPrinter): FunctionalPrinter =
+  def print(printer: FunctionalPrinter): FunctionalPrinter =
     printer
       .add("package " + service.getFile.scalaPackageName, "")
       .add(imports: _*)
