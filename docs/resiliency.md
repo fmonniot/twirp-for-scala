@@ -2,6 +2,8 @@
 id: "resiliency"
 title: "Resiliency Protocol"
 sidebar_label: "Version 1 (Proposed Draft)"
+position: 1
+layout: docs
 ---
 
 In this document we will provides some methods to address resiliency issues.

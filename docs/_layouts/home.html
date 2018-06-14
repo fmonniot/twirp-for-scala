@@ -1,0 +1,40 @@
+---
+layout: default
+---
+
+<header id="site-header">
+    <div class="navbar-wrapper">
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-6">
+                    <a href="{{ site.baseurl }}/" class="brand">
+                        <div class="icon-wrapper"><span>{{ site.github.project_title }}</span></div>
+                    </a>
+                </div>
+                <div class="col-xs-6">
+                    {% include collapse_menu.html %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="jumbotron">
+        <div class="container"><h1 class="text-center">{{ site.description | default: site.github.project_tagline }}</h1>
+            <h2></h2>
+            <p class="text-center">
+                <a href="{{ site.github.repository_url }}" class="btn btn-outline-inverse">View on GitHub</a>
+            </p>
+        </div>
+    </div>
+    
+    {% include menu.html %}
+</header>
+
+<main id="site-main">
+    <section class="use">
+        <div class="container">
+            <div id="content">
+                {{ content }}
+            </div>
+        </div>
+    </section>
+</main>

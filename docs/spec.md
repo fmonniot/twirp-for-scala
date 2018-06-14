@@ -1,7 +1,9 @@
 ---
 id: "spec"
-title: "rpc4s Wire Protocol"
+title: "Wire Protocol"
 sidebar_label: "Version 1 (Proposed Draft)"
+position: 0
+layout: docs
 ---
 
 This document defines the rpc4s wire protocol over HTTP. The current protocol version is v5.

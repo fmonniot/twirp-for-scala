@@ -1,0 +1,29 @@
+<html>
+{% include head.html %}
+<body>
+    {{ content }}
+
+    <footer id="site-footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-6">
+                    <p>{{ site.github.repository_name }} is designed and developed by 
+                        <a href="{{ site.github.owner_url }}" target="_blank">{{ site.github.owner_name }}</a>
+                    </p></div>
+                <div class="col-xs-6"><p class="text-right">
+                    <a href="{{ site.github.repository_url }}"><span class="fa fa-github"></span> View on Github</a>
+                </p></div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="{{ site.baseurl }}/highlight/highlight.pack.js"></script>
+    <script>hljs.configure({
+        languages: ['scala', 'java', 'bash']
+    });
+    hljs.initHighlighting();
+    </script>
+</body>
+</html>
