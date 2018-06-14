@@ -35,6 +35,19 @@ _This work as a todo and memo list, as well as informing visitor of what's not d
 
 - `example` should be part of a scripted test suite for the plugin
 
+```scala
+package printers
+
+import scalapb.compiler.{DescriptorPimps, FunctionalPrinter}
+
+trait Printer extends DescriptorPimps {
+
+  def print(printer: FunctionalPrinter): FunctionalPrinter
+
+}
+```
+
+
 ## Docs
 
 `bundle exec jekyll serve --baseurl /twirp-for-scala`
